@@ -1,0 +1,42 @@
+﻿@page "/CapturePhoto"
+@inject IJSRuntime js
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<img id="image" width="200" />
+
+<script>
+    async function captureImage(imageId, imageStream) {
+        const arrayBuffer = await imageStream.arrayBuffer();
+        const blob = new Blob([arrayBuffer]);
+        const url = URL.createObjectURL(blob);
+        document.getElementById(imageId).src = url;
+        document.getElementById(imageId).style.display = 'block';
+        return true;
+    }
+</script>
+
+@code {
+    //https://stackoverflow.com/questions/77624261/unable-to-use-mobile-device-camera-in-blazor-maui-hybrid-application
+    
+
+    FileResult photo;
+
+    private async void IncrementCount()
+    {
+       // await Permissions.RequestAsync<Permissions.Camera>();
+        
+        if (DeviceInfo.Current.Platform == DevicePlatform.Android)
+        {
+            photo = await MediaPicker.CapturePhotoAsync();
+        }
+        if (photo == null)
+        {
+            return;
+        }
+        using (var stream = await photo.OpenReadAsync())
+        {
+            var dotnetImageStream = new DotNetStreamReference(stream);
+            await js.InvokeAsync<bool>("captureImage", "image", dotnetImageStream);
+        }
+    }
+}

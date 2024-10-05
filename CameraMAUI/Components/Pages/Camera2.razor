@@ -1,0 +1,177 @@
+﻿@page "/camera2"
+
+<div class="camera-container">
+    @if (isLoading)
+    {
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    }
+    else
+    {
+        <button class="btn btn-primary mb-3" @onclick="CapturePhotoAsync" disabled="@isLoading">
+            <i class="fas fa-camera me-2"></i>Take Photo
+        </button>
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @errorMessage
+            <button type="button" class="btn-close" @onclick="ClearError" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (imageSource is not null)
+    {
+        <div class="image-preview mt-3">
+            <img src="@imageSource" alt="Captured photo" class="img-fluid rounded" style="max-width: 300px;" />
+            <button class="btn btn-danger mt-2" @onclick="ClearPhoto">
+                <i class="fas fa-trash me-2"></i>Clear Photo
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    private const int MaxImageSize = 5 * 1024 * 1024; // 5MB
+    private const int MaxImageDimension = 1024; // מקסימום רוחב או גובה
+    private string? imageSource;
+    private string? errorMessage;
+    private bool isLoading;
+
+    private async Task CapturePhotoAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            StateHasChanged();
+
+            // בדיקת תמיכה בפלטפורמה
+            if (!IsPlatformSupported())
+            {
+                SetError("This feature is only supported on Android and iOS devices.");
+                return;
+            }
+
+            // בדיקת הרשאות
+            var status = await CheckAndRequestCameraPermission();
+            if (status != PermissionStatus.Granted)
+            {
+                SetError("Camera permission is required to use this feature.");
+                return;
+            }
+
+            // צילום התמונה
+            var photo = await MediaPicker.CapturePhotoAsync();
+            if (photo == null)
+            {
+                SetError("Failed to capture photo.");
+                return;
+            }
+
+            await ProcessPhotoAsync(photo);
+        }
+        catch (Exception ex)
+        {
+            SetError($"An error occurred: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private bool IsPlatformSupported()
+    {
+        return DeviceInfo.Current.Platform == DevicePlatform.Android ||
+               DeviceInfo.Current.Platform == DevicePlatform.iOS;
+    }
+
+    private async Task<PermissionStatus> CheckAndRequestCameraPermission()
+    {
+        var status = await Permissions.CheckStatusAsync<Permissions.Camera>();
+        
+        if (status != PermissionStatus.Granted)
+        {
+            status = await Permissions.RequestAsync<Permissions.Camera>();
+        }
+
+        return status;
+    }
+
+    private async Task ProcessPhotoAsync(FileResult photo)
+    {
+        using var memoryStream = new MemoryStream();
+        using var stream = await photo.OpenReadAsync();
+
+        await stream.CopyToAsync(memoryStream);
+        var imageBytes = memoryStream.ToArray();
+
+        // בדיקת גודל הקובץ
+        if (imageBytes.Length > MaxImageSize)
+        {
+            SetError($"Image size exceeds maximum allowed size of {MaxImageSize / 1024 / 1024}MB");
+            return;
+        }
+
+        try
+        {
+            // המרה ל-Base64 עם הפורמט המתאים
+            var base64String = Convert.ToBase64String(imageBytes);
+            var imageFormat = Path.GetExtension(photo.FileName).ToLowerInvariant() switch
+            {
+                ".jpg" or ".jpeg" => "jpeg",
+                ".png" => "png",
+                _ => "jpeg" // ברירת מחדל
+            };
+            
+            imageSource = $"data:image/{imageFormat};base64,{base64String}";
+        }
+        catch (Exception ex)
+        {
+            SetError($"Failed to process image: {ex.Message}");
+        }
+    }
+
+    private void SetError(string message)
+    {
+        errorMessage = message;
+        StateHasChanged();
+    }
+
+    private void ClearError()
+    {
+        errorMessage = null;
+        StateHasChanged();
+    }
+
+    private void ClearPhoto()
+    {
+        imageSource = null;
+        StateHasChanged();
+    }
+}
+
+<style>
+    .camera-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .image-preview {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
+</style>

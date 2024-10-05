@@ -1,0 +1,32 @@
+﻿@page "/"
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+
+<button @onclick="DoNativeStuff">Show Native Info</button>
+<h3>@message</h3>
+<h3>@deviceinfo</h3>
+
+@code
+{
+    private string message;
+    private string deviceinfo;
+
+    void DoNativeStuff()
+    {
+        message = "Hello from " + AppInfo.Name + " running as " + DeviceDisplay.MainDisplayInfo.Orientation + " on " + DeviceDisplay.MainDisplayInfo.Width + "x" + DeviceDisplay.MainDisplayInfo.Height;
+
+        deviceinfo = DeviceInfo.Name;
+
+        var connection = Connectivity.NetworkAccess;
+        if (connection == NetworkAccess.Internet)
+        {
+            var profiles = Connectivity.ConnectionProfiles;
+            if (profiles.Contains(ConnectionProfile.WiFi))
+            {
+                deviceinfo += " on WiFi.";
+            }
+        }
+    }
+}

@@ -1,0 +1,20 @@
+﻿@page "/Locationdata"
+
+
+<p>This component demonstrates fetching data from a service.</p>
+<h3>@locationdata</h3>
+
+
+@code {
+
+    private string locationdata;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var location = await Geolocation.GetLastKnownLocationAsync();
+        if (location != null)
+        {
+            locationdata = "Device Location: " + location.Latitude + " | " + location.Longitude;
+        }
+    }
+}

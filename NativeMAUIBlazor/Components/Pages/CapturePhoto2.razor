@@ -1,0 +1,39 @@
+﻿@page "/CapturePhoto2"
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<br />
+@if (imageSource is not null)
+{
+    <div>
+        <img src="@imageSource" width="200" height="200" />
+    </div>
+}
+
+@code {
+
+    // https://stackoverflow.com/questions/72513093/how-to-display-local-image-as-well-as-resources-image-in-net-maui-blazor
+
+    byte[] streamBytes;
+    FileResult photo;
+    private string? imageSource;
+    private async void IncrementCount()
+    {
+
+        if (DeviceInfo.Current.Platform == DevicePlatform.Android)
+        {
+            photo = await MediaPicker.CapturePhotoAsync();
+        }
+        if (photo == null)
+        {
+            return;
+        }
+        var memoryStream = new MemoryStream();
+        var stream = await photo.OpenReadAsync();
+        await stream.CopyToAsync(memoryStream);
+        streamBytes = memoryStream.ToArray();
+        imageSource = Convert.ToBase64String(streamBytes);
+        imageSource = string.Format("data:image/png;base64,{0}", imageSource);
+        StateHasChanged();
+
+        
+    }
+}

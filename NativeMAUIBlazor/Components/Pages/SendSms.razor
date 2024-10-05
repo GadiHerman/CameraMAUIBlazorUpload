@@ -1,0 +1,26 @@
+﻿@page "/SendSms"
+
+
+<button class="btn btn-primary" @onclick="SpeakMultiple">SpeakMultiple</button>
+
+
+
+@code {
+    //https://learn.microsoft.com/en-us/dotnet/maui/platform-integration/communication/sms?view=net-maui-8.0&tabs=android
+
+    bool isBusy = false;
+
+    public async Task  SpeakMultiple()
+    {
+        
+        if (Sms.Default.IsComposeSupported)
+        {
+            string[] recipients = new[] { "000-000-0000" };
+            string text = "Hello, I'm interested in buying your vase.";
+
+            var message = new SmsMessage(text, recipients);
+
+            await Sms.Default.ComposeAsync(message);
+        }
+    }
+}

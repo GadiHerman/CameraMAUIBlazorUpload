@@ -1,0 +1,33 @@
+﻿@page "/SendEmail"
+
+
+<button class="btn btn-primary" @onclick="SpeakMultiple">SpeakMultiple</button>
+
+
+
+@code {
+
+    //https://learn.microsoft.com/en-us/dotnet/maui/platform-integration/communication/email?view=net-maui-8.0&tabs=android
+
+    public async Task  SpeakMultiple()
+    {
+        
+        if (Email.Default.IsComposeSupported)
+        {
+
+            string subject = "Hello friends!";
+            string body = "It was great to see you last weekend.";
+            string[] recipients = new[] { "john@contoso.com", "jane@contoso.com" };
+
+            var message = new EmailMessage
+                {
+                    Subject = subject,
+                    Body = body,
+                    BodyFormat = EmailBodyFormat.PlainText,
+                    To = new List<string>(recipients)
+                };
+
+            await Email.Default.ComposeAsync(message);
+        }
+    }
+}

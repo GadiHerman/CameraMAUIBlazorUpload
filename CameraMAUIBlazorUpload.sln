@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageAPI", "ImageAPI\ImageAPI.csproj", "{0C946479-5830-44C4-B44B-24D49FE366AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CameraMAUI", "CameraMAUI\CameraMAUI.csproj", "{60F543A3-6F5F-4C8A-8784-C9EA9081E577}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0C946479-5830-44C4-B44B-24D49FE366AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C946479-5830-44C4-B44B-24D49FE366AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C946479-5830-44C4-B44B-24D49FE366AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C946479-5830-44C4-B44B-24D49FE366AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60F543A3-6F5F-4C8A-8784-C9EA9081E577}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60F543A3-6F5F-4C8A-8784-C9EA9081E577}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60F543A3-6F5F-4C8A-8784-C9EA9081E577}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{60F543A3-6F5F-4C8A-8784-C9EA9081E577}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60F543A3-6F5F-4C8A-8784-C9EA9081E577}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60F543A3-6F5F-4C8A-8784-C9EA9081E577}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A8E388A0-D6AD-445C-89D6-2C8A7C45270A}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,67 @@
+﻿@page "/camera"
+@using System.Net.Http.Headers
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<br />
+@if (imageSource is not null)
+{
+    <div>
+        <img src="@imageSource" width="200" height="200" />
+    </div>
+}
+<button class="btn btn-primary" @onclick="UploadImage">UploadImage</button>
+<p style="color:red">@message</p>
+
+@code {
+    private byte[] streamBytes;
+    private FileResult photo;
+    private string? imageSource;
+    private HttpClient client;
+    private string message = "";
+    const string URL = "https://zq6rjhqc-7064.euw.devtunnels.ms/api";
+
+    private async void IncrementCount()
+    {
+        if (DeviceInfo.Current.Platform == DevicePlatform.Android)
+        {
+            photo = await MediaPicker.CapturePhotoAsync();
+        }
+        if (photo == null)
+        {
+            return;
+        }
+        var memoryStream = new MemoryStream();
+        var stream = await photo.OpenReadAsync();
+        await stream.CopyToAsync(memoryStream);
+        streamBytes = memoryStream.ToArray();
+        imageSource = Convert.ToBase64String(streamBytes);
+        imageSource = string.Format("data:image/jpg;base64,{0}", imageSource);
+        StateHasChanged();
+    }
+
+    private async Task UploadImage()
+    {
+        byte[] streamBytes;
+        var memoryStream = new MemoryStream();
+        var stream = await photo.OpenReadAsync();
+        await stream.CopyToAsync(memoryStream);
+        streamBytes = memoryStream.ToArray();
+
+        var fileContent = new ByteArrayContent(streamBytes);
+        //https://developer.mozilla.org/en-US/docs/Web/HTTP/MIME_types/Common_types
+        fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
+        MultipartFormDataContent content = new MultipartFormDataContent();
+        //"File" - חשוב !! זהה לשם הפרמטר של הפעולה בשרת שמייצגת את הקובץ
+        content.Add(fileContent, "File", photo.FileName);
+        client = new HttpClient();
+        var response = await client.PostAsync(@$"{URL}/Image", content);
+        if (response.IsSuccessStatusCode)
+        {
+            message = "The file was successfully uploaded";
+        }
+        else
+        {
+            message = "The file did not load";
+        }
+    }
+}
